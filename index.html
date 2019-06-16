@@ -9,23 +9,17 @@
     <script>
     AFRAME.registerComponent('car', {
       init: function () {
-        this.el.addEventListener('thumbstickchanged', AFRAME.utils.bind(this.onThumbStickChanged, this))
         window.addEventListener('keydown', this.onKeyDown.bind(this))
         window.addEventListener('keyup', this.onKeyUp.bind(this))
         this.rotating = null
         this.speeding = null
         this.speed = 0.0
       },
-      onThumbStickChanged: function(e) {
-        console.log(e)
-      },
       onKeyDown: function (e) {
         if (e.keyCode == 65) {
           this.rotating = 'left'
-          e.preventDefault()
         } else if (e.keyCode == 68) {
           this.rotating = 'right'
-          e.preventDefault()
         } else if (e.keyCode == 87) {
           this.speeding = 'up'
         } else if (e.keyCode == 83) {

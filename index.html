@@ -1,0 +1,133 @@
+<html>
+  <head>
+    <title>A-Frame Test</title>
+    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+    <script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v6.0.0/dist/aframe-extras.min.js"></script>
+    <script src="//cdn.rawgit.com/donmccurdy/aframe-physics-system/v4.0.0/dist/aframe-physics-system.min.js"></script>
+    <script src="https://unpkg.com/super-hands@3.0.0/dist/super-hands.min.js"></script>
+    <script src="https://unpkg.com/aframe-physics-extras@0.1.2/dist/aframe-physics-extras.min.js"></script>
+    <script>
+    AFRAME.registerComponent('car', {
+      init: function () {
+        this.el.addEventListener('thumbstickchanged', AFRAME.utils.bind(this.onThumbStickChanged, this))
+        window.addEventListener('keydown', this.onKeyDown.bind(this))
+        window.addEventListener('keyup', this.onKeyUp.bind(this))
+        this.rotating = null
+        this.speeding = null
+        this.speed = 0.0
+      },
+      onThumbStickChanged: function(e) {
+        console.log(e)
+      },
+      onKeyDown: function (e) {
+        if (e.keyCode == 65) {
+          this.rotating = 'left'
+          e.preventDefault()
+        } else if (e.keyCode == 68) {
+          this.rotating = 'right'
+          e.preventDefault()
+        } else if (e.keyCode == 87) {
+          this.speeding = 'up'
+        } else if (e.keyCode == 83) {
+          this.speeding = 'down'
+        }
+      },
+      onKeyUp: function (e) {
+        if (e.keyCode == 65 && this.rotating == 'left') {
+          this.rotating = null
+        } else if (e.keyCode == 68 && this.rotating == 'right') {
+          this.rotating = null
+        } else if (e.keyCode == 87 && this.speeding == 'up') {
+          this.speeding = null
+        } else if (e.keyCode == 83 && this.speeding == 'down') {
+          this.speeding = null
+        }
+      },
+      tick: function () {
+        if (this.speeding != null) {
+          const direction = this.speed > 0 ? 1 : -1
+          if (this.rotating == 'left') {
+            this.el.object3D.rotateY(direction * Math.PI / 120)
+          } else if (this.rotating == 'right') {
+            this.el.object3D.rotateY(direction * -Math.PI / 120)
+          }
+        }
+        if (this.speeding == 'up') {
+          this.speed = Math.min(this.speed + 0.02, 0.2)
+        } else if (this.speeding == 'down') {
+          this.speed = Math.max(this.speed - 0.02, -0.2)
+        }
+        const position = this.el.getAttribute('position')
+        const rotation = this.el.getAttribute('rotation')
+        const angle = Math.PI * rotation.y / 180
+        position.x += this.speed * Math.sin(angle)
+        position.z += this.speed * Math.cos(angle)
+        this.el.setAttribute('position', position)
+        if (this.speed > 0) {
+          this.speed = Math.max(this.speed - 0.01, 0)
+        }
+        if (this.speed < 0) {
+          this.speed = Math.min(this.speed + 0.01, 0)
+        }
+      }
+    })
+    </script>
+  </head>
+  <body>
+    <a-scene physics>
+      <a-assets>
+        <img id="ground" src="images/block.png">
+        <img id="bg" src="images/bg.jpg">
+        <a-asset-item id="car-obj" src="models/car.obj"></a-asset-item>
+        <a-asset-item id="car-mtl" src="models/car.mtl"></a-asset-item>
+        <a-mixin id="controller"
+                 super-hands="colliderEvent: collisions;
+                              colliderEventProperty: els;
+                              colliderEndEvent: collisions;
+                              colliderEndEventProperty: clearedEls;
+                              grabStartButtons: gripdown, pointdown, triggerdown;
+                              grabEndButtons: gripup, pointup, triggerup"
+                 static-body="shape: sphere; sphereRadius: 0.11"
+                 oculus-touch-controls="hand: left"
+                 physics-collider
+                 collision-filter = "collidesWith: default, red, green, blue;
+                                     collisionForces: false">
+        <a-mixin id="pointer" raycaster="showLine: true; objects: .link, .checkpoint, a-link"
+                  super-hands="colliderEvent: raycaster-intersection;
+                               colliderEventProperty: els;
+                               colliderEndEvent:raycaster-intersection-cleared;
+                               colliderEndEventProperty: clearedEls;">
+      </a-assets>
+      
+      <a-entity>
+        <a-camera position="0 4 0" wasd-controls-enabled="false"
+        >
+          <a-entity cursor="rayOrigin: mouse"
+            position="0 0 -1"
+            geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.018"
+            material="color: #888; shader: flat">
+        </a-camera>
+        <a-entity hand-controls="left" mixin="controller"></a-entity>
+        <a-entity hand-controls="right" mixin="pointer"></a-entity>
+      </a-entity>
+
+      <a-entity height="100" width="100" shadow="cast:true; receive:true">
+        <a-box position="-1 0.5 -2" rotation="0 45 0" color="#4CC3D9" dynamic-body grabbable></a-box>
+
+        <a-obj-model
+          src="#car-obj"
+          mtl="#car-mtl"
+          position="0 0.3 -10"
+          rotation="0 0 0"
+          scale="0.2 0.2 0.2"
+          car
+          animation-mixer
+        ></a-obj-model>
+
+        <a-plane src="#ground" height="100" width="100" rotation="-90 0 0" repeat="100 100" static-body></a-plane>
+      </a-entity>
+
+      <a-sky src="#bg"></a-sky>
+    </a-scene>
+  </body>
+</html>

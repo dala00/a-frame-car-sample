@@ -86,11 +86,6 @@
                  physics-collider
                  collision-filter = "collidesWith: default, red, green, blue;
                                      collisionForces: false">
-        <a-mixin id="pointer" raycaster="showLine: true; objects: .link, .checkpoint, a-link"
-                  super-hands="colliderEvent: raycaster-intersection;
-                               colliderEventProperty: els;
-                               colliderEndEvent:raycaster-intersection-cleared;
-                               colliderEndEventProperty: clearedEls;">
       </a-assets>
       
       <a-entity>
@@ -102,7 +97,7 @@
             material="color: #888; shader: flat">
         </a-camera>
         <a-entity hand-controls="left" mixin="controller"></a-entity>
-        <a-entity hand-controls="right" mixin="pointer"></a-entity>
+        <a-entity hand-controls="right" mixin="controller"></a-entity>
       </a-entity>
 
       <a-entity height="100" width="100" shadow="cast:true; receive:true">

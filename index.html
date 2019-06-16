@@ -15,6 +15,24 @@
         this.speeding = null
         this.speed = 0.0
       },
+      onAxisMoveSpeed: function(e) {
+        if (e.detail.axis[1] == 0) {
+          this.speeding = null
+        } else if (e.detail.axis[1] > 0) {
+          this.speeding = 'down'
+        } else if (e.detail.axis[1] < 0) {
+          this.speeding = 'up'
+        }
+      },
+      onAxisMoveAngle: function(e) {
+        if (e.detail.axis[0] == 0) {
+          this.rotating = null
+        } else if (e.detail.axis[0] > 0) {
+          this.rotating = 'right'
+        } else if (e.detail.axis[0] < 0) {
+          this.rotating = 'left'
+        }
+      },
       onKeyDown: function (e) {
         if (e.keyCode == 65) {
           this.rotating = 'left'
@@ -65,6 +83,24 @@
         }
       }
     })
+    
+    AFRAME.registerComponent('car-controller-left', {
+      init: function () {
+        this.el.addEventListener('axismove', function (e) {
+          const car = document.querySelector('[car]').components.car
+          car.onAxisMoveSpeed(e)
+        })
+      }
+    })
+    
+    AFRAME.registerComponent('car-controller-right', {
+      init: function () {
+        this.el.addEventListener('axismove', function (e) {
+          const car = document.querySelector('[car]').components.car
+          car.onAxisMoveAngle(e)
+        })
+      }
+    })
     </script>
   </head>
   <body>
@@ -96,8 +132,8 @@
             geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.018"
             material="color: #888; shader: flat">
         </a-camera>
-        <a-entity hand-controls="left" mixin="controller"></a-entity>
-        <a-entity hand-controls="right" mixin="controller"></a-entity>
+        <a-entity hand-controls="left" mixin="controller" car-controller-left></a-entity>
+        <a-entity hand-controls="right" mixin="controller" car-controller-right></a-entity>
       </a-entity>
 
       <a-entity height="100" width="100" shadow="cast:true; receive:true">

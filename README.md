@@ -9,3 +9,7 @@ Just clone and access index.html. (Server needed for loading resources)
 ### Ground
 
 [pipoya](https://pipoya.net/sozai/)
+
+## License
+
+MIT
